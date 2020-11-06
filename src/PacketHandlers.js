@@ -3,11 +3,25 @@ const store = require('../store')
 function createHandlers(io, socket_client) {
 
     const ChangePseudo = (data) => {
-        store.clients[socket_client.id] = data.pseudo
-        store.clientsByPseudo[data.pseudo] = socket_client.id
+        const packet = {}
+        if (!store.clientsByPseudo[data.pseudo]) {
+            store.clients[socket_client.id] = data.pseudo
+            store.clientsByPseudo[data.pseudo] = socket_client.id
+            packet.logged = true
+            packet.pseudo = data.pseudo
+        }
+        else {
+            packet.error = {
+                message: 'Pseudo already used'
+            }
+        }
+        socket_client.emit('pseudo_logged', packet)
     }
 
     const SendMessage = (data) => {
+        if (!store.clients[socket_client.id]) {
+            return ;
+        }
         const packet_msg = {
             message: data.message,
             date: +new Date(),
