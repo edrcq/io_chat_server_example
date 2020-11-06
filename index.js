@@ -35,7 +35,9 @@ io.on('connection', function(socket_client) {
 
 })
 
-server.listen(5055, () => {
+const port = process.env.PORT || 5055
+
+server.listen(port, () => {
     console.log('started')
 })
 
