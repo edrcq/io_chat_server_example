@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Chat Socket.IO</title>
+</head>
+<body>
+
+    <div id="app">
+        <div>
+            <textarea v-model="str_messages" cols="100" rows="40"></textarea>
+        </div>
+        <div>
+            <input @keypress.enter="sendMessage" v-model="client_message" size="100" />
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="http://localhost:5055/socket.io/socket.io.js"></script>
+
+    <script>
+        const socket = io('http://localhost:5055')
+
+        socket.on('new_message', (data) => {
+            app.messages.push(data)
+        })
+
+        const app = new Vue({
+            el: '#app',
+            data() { return {
+                client_message: '',
+                messages: [],
+            }},
+            computed: {
+                str_messages() {
+                    let str = ''
+                    for (let msg of this.messages) {
+                        str += `[${msg.date}] ${msg.client}: ${msg.message}\n`
+                    }
+                    return str
+                }
+            },
+            methods: {
+                sendMessage() {
+                    socket.emit('send_message', { message: this.client_message })
+                    this.client_message = ''
+                }
+            }
+        })
+    </script>
+</body>
+</html>
